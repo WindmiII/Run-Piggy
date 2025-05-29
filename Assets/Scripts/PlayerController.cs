@@ -26,6 +26,8 @@ public class PlayerController : MonoBehaviour
     private bool isInvincible = false;
     private SpriteRenderer spriteRenderer;
 
+    bool isSlideButtonHeld = false;
+
     void Start()
     {
         rb2d = GetComponent<Rigidbody2D>();
@@ -65,9 +67,10 @@ public class PlayerController : MonoBehaviour
             jumpCount += 1;
         }
 
-        if (Input.GetKey(KeyCode.V) && canJump && !isGameOver)
+        if (Input.GetKey(KeyCode.LeftControl) || isSlideButtonHeld)
         {
-            StartSliding();
+            if (canJump && !isGameOver)
+                StartSliding();
         }
         else
         {
@@ -152,6 +155,33 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    public void OnJumpButtonPressed()
+    {
+        if (canJump && !isGameOver)
+        {
+            rb2d.velocity = Vector3.up * jumpPower;
+            anim.SetTrigger("Jump");
+            jumpCount += 1;
+        }
+    }
+
+    public void OnSlideButtonDown()
+    {
+        if (canJump && !isGameOver)
+        {
+            Debug.Log("Slide Button Down");
+            isSlideButtonHeld = true;
+            StartSliding();
+        }
+    }
+
+    public void OnSlideButtonUp()
+    {
+        Debug.Log("Slide Button Up Released");
+        isSlideButtonHeld = false;
+        StopSliding();
+    }
+
     IEnumerator IncreaseGameSpeed()
     {
         while (true)
@@ -190,5 +220,4 @@ public class PlayerController : MonoBehaviour
         yield return new WaitForSeconds(invincibilityDuration);
         col.enabled = true;
     }
-    
 }
